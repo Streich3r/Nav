@@ -137,6 +137,14 @@
         .tab-btn.active {
             @apply border-indigo-400 text-indigo-400 shadow-inner shadow-indigo-700/50;
         }
+
+        /* SWIPE Container - Sicherstellen, dass der Inhalt nicht nach oben gezogen wird */
+        #module-wrapper {
+            /* w-[200%] und flex sorgen dafür, dass beide Module nebeneinander liegen */
+            width: 200%; 
+            display: flex;
+            will-change: transform; /* Leistungsoptimierung für Transition */
+        }
     </style>
 </head>
 <body class="scifi-body min-h-screen flex flex-col items-center justify-start p-6 pt-12 text-gray-300">
@@ -201,60 +209,67 @@
         </div>
 
 
-        <!-- --- ZUSATZMODULE (TABBED) --- -->
-        <div class="mt-8">
-            <!-- Tab-Navigation -->
+        <!-- --- ZUSATZMODULE (SWIPEABLE) --- -->
+        <div class="mt-8 w-full">
+            <!-- Tab-Navigation (bleibt als Indikator und Klick-Fallback) -->
             <div class="flex border-b border-indigo-700 mb-4">
-                <button id="tab-timer" class="tab-btn active" onclick="showModule('timer')">STOPPUHR</button>
-                <button id="tab-steps" class="tab-btn" onclick="showModule('steps')">SCHRITTZÄHLER</button>
+                <button id="tab-timer" class="tab-btn active" onclick="switchToModule(0)">STOPPUHR</button>
+                <button id="tab-steps" class="tab-btn" onclick="switchToModule(1)">SCHRITTZÄHLER</button>
             </div>
 
-            <!-- Stoppuhr Modul -->
-            <div id="timer-module" class="module-content">
-                <h2 class="font-orbitron text-lg text-cyan-400 mb-4">STOPPUHR</h2>
-                
-                <div id="timer-display" class="font-orbitron text-5xl text-center text-cyan-400 mb-6 p-4 digital-display digital-flicker">
-                    00:00:00.00
-                </div>
+            <!-- SWIPE CONTAINER - Versteckt horizontalen Überlauf -->
+            <div id="swipe-container" class="overflow-hidden">
+                <!-- Inner SCROLLING/TRANSITION element - enthält beide Module -->
+                <div id="module-wrapper" class="transition-transform duration-300 ease-out"> 
+                    
+                    <!-- Stoppuhr Modul (50% der 200%-Breite = 100% der Container-Breite) -->
+                    <div id="timer-module" class="module-content w-1/2 flex-shrink-0">
+                        <h2 class="font-orbitron text-lg text-cyan-400 mb-4">STOPPUHR</h2>
+                        
+                        <div id="timer-display" class="font-orbitron text-5xl text-center text-cyan-400 mb-6 p-4 digital-display digital-flicker">
+                            00:00:00.00
+                        </div>
 
-                <!-- Steuerung -->
-                <div class="flex justify-around space-x-2 mb-6">
-                    <button id="timer-start-pause" class="scifi-btn btn-cyan">START</button>
-                    <button id="timer-reset" class="scifi-btn btn-red">ZURÜCKSETZEN</button>
-                    <button id="timer-save" class="scifi-btn btn-indigo" disabled>ZEIT SPEICHERN</button>
-                </div>
-                
-                <!-- Gespeicherte Zeiten Liste -->
-                <h3 class="font-orbitron text-sm text-indigo-400 border-b border-indigo-600 pb-1 mb-2">PROTOKOLLIERTE EREIGNISSE</h3>
-                <div id="timer-log" class="h-32 overflow-y-auto p-2 bg-[#0d0a1b] border border-gray-700 text-sm font-mono text-gray-300">
-                    <p class="text-center text-gray-500">Warte auf Daten...</p>
-                </div>
-            </div>
+                        <!-- Steuerung -->
+                        <div class="flex justify-around space-x-2 mb-6">
+                            <button id="timer-start-pause" class="scifi-btn btn-cyan">START</button>
+                            <button id="timer-reset" class="scifi-btn btn-red">ZURÜCKSETZEN</button>
+                            <button id="timer-save" class="scifi-btn btn-indigo" disabled>ZEIT SPEICHERN</button>
+                        </div>
+                        
+                        <!-- Gespeicherte Zeiten Liste -->
+                        <h3 class="font-orbitron text-sm text-indigo-400 border-b border-indigo-600 pb-1 mb-2">PROTOKOLLIERTE EREIGNISSE</h3>
+                        <div id="timer-log" class="h-32 overflow-y-auto p-2 bg-[#0d0a1b] border border-gray-700 text-sm font-mono text-gray-300">
+                            <p class="text-center text-gray-500">Warte auf Daten...</p>
+                        </div>
+                    </div>
 
-            <!-- Schrittzähler Modul -->
-            <div id="steps-module" class="module-content hidden">
-                <h2 class="font-orbitron text-lg text-cyan-400 mb-4">SCHRITTZÄHLER</h2>
-                
-                <div id="steps-display" class="font-orbitron text-5xl text-center text-cyan-400 mb-6 p-4 digital-display digital-flicker">
-                    0
-                </div>
+                    <!-- Schrittzähler Modul (50% der 200%-Breite = 100% der Container-Breite) -->
+                    <div id="steps-module" class="module-content w-1/2 flex-shrink-0">
+                        <h2 class="font-orbitron text-lg text-cyan-400 mb-4">SCHRITTZÄHLER</h2>
+                        
+                        <div id="steps-display" class="font-orbitron text-5xl text-center text-cyan-400 mb-6 p-4 digital-display digital-flicker">
+                            0
+                        </div>
 
-                <!-- Steuerung -->
-                <div class="flex justify-around space-x-2 mb-6">
-                    <button id="steps-start-pause" class="scifi-btn btn-cyan">AKTIVIEREN</button>
-                    <button id="steps-reset" class="scifi-btn btn-red">ZURÜCKSETZEN</button>
-                    <button id="steps-save" class="scifi-btn btn-indigo" disabled>ZÄHLER PROTOKOLLIEREN</button>
-                </div>
+                        <!-- Steuerung -->
+                        <div class="flex justify-around space-x-2 mb-6">
+                            <button id="steps-start-pause" class="scifi-btn btn-cyan">AKTIVIEREN</button>
+                            <button id="steps-reset" class="scifi-btn btn-red">ZURÜCKSETZEN</button>
+                            <button id="steps-save" class="scifi-btn btn-indigo" disabled>ZÄHLER PROTOKOLLIEREN</button>
+                        </div>
 
-                <!-- Status der Schrittmessung -->
-                <p id="steps-status" class="text-xs text-center text-yellow-500 mb-4">
-                    Sensor-Status: Inaktiv. Benötigt Gerätebewegungsberechtigung.
-                </p>
+                        <!-- Status der Schrittmessung -->
+                        <p id="steps-status" class="text-xs text-center text-yellow-500 mb-4">
+                            Sensor-Status: Inaktiv. Benötigt Gerätebewegungsberechtigung.
+                        </p>
 
-                <!-- Gespeicherte Schritte Liste -->
-                <h3 class="font-orbitron text-sm text-indigo-400 border-b border-indigo-600 pb-1 mb-2">AKTIVITÄTSPROTOKOLLE</h3>
-                <div id="steps-log" class="h-32 overflow-y-auto p-2 bg-[#0d0a1b] border border-gray-700 text-sm font-mono text-gray-300">
-                    <p class="text-center text-gray-500">Warte auf Daten...</p>
+                        <!-- Gespeicherte Schritte Liste -->
+                        <h3 class="font-orbitron text-sm text-indigo-400 border-b border-indigo-600 pb-1 mb-2">AKTIVITÄTSPROTOKOLLE</h3>
+                        <div id="steps-log" class="h-32 overflow-y-auto p-2 bg-[#0d0a1b] border border-gray-700 text-sm font-mono text-gray-300">
+                            <p class="text-center text-gray-500">Warte auf Daten...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -436,25 +451,104 @@
             }).join('');
         }
 
-        // --- 3. TAB-CONTROLLER ---
-        window.showModule = function(moduleName) {
-            // Alle Modulinhalte ausblenden
-            document.querySelectorAll('.module-content').forEach(el => el.classList.add('hidden'));
-            // Alle Tab-Buttons deaktivieren
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        // --- 3. SWIPE/TAB-CONTROLLER LOGIK ---
+        
+        const moduleWrapper = document.getElementById('module-wrapper');
+        const tabTimer = document.getElementById('tab-timer');
+        const tabSteps = document.getElementById('tab-steps');
+        const swipeContainer = document.getElementById('swipe-container');
 
-            // Gewähltes Modul anzeigen
-            document.getElementById(`${moduleName}-module`).classList.remove('hidden');
-            // Gewählten Tab-Button aktivieren
-            document.getElementById(`tab-${moduleName}`).classList.add('active');
+        let currentModuleIndex = 0; // 0 = Timer, 1 = Steps
+        const MODULE_COUNT = 2;
+        const SWIPE_THRESHOLD = 50; // Mindestabstand in Pixeln für eine Wischgeste
 
+        let touchStartX = 0;
+        let touchDistX = 0;
+        let isSwiping = false;
+
+        // Funktion zum Wechseln des Moduls (durch Klick oder nach Wischgeste)
+        window.switchToModule = function(index) {
+            if (index < 0 || index >= MODULE_COUNT) return;
+
+            currentModuleIndex = index;
+            const translateX = -currentModuleIndex * 50; // 0% oder -50%
+
+            // CSS-Klasse für die Transition wieder hinzufügen
+            moduleWrapper.classList.add('transition-transform', 'duration-300', 'ease-out');
+            moduleWrapper.style.transform = `translateX(${translateX}%)`;
+
+            // Tabs aktualisieren
+            tabTimer.classList.remove('active');
+            tabSteps.classList.remove('active');
+            if (currentModuleIndex === 0) {
+                tabTimer.classList.add('active');
+            } else {
+                tabSteps.classList.add('active');
+            }
+            
             // Das Kompass-Modul ist immer sichtbar, da es oben sitzt
             document.getElementById('compass-module').classList.remove('hidden');
         }
         
-        // Stoppuhr als Standard-Zusatzmodul anzeigen
-        showModule('timer'); 
-        document.getElementById('compass-module').classList.remove('hidden');
+        function handleTouchStart(e) {
+            touchStartX = e.touches[0].clientX;
+            isSwiping = true;
+            // CSS-Transition entfernen, um ruckelfreies Ziehen zu ermöglichen
+            moduleWrapper.classList.remove('transition-transform', 'duration-300', 'ease-out');
+        }
+
+        function handleTouchMove(e) {
+            if (!isSwiping) return;
+            touchDistX = e.touches[0].clientX - touchStartX;
+
+            // Verhindert das Scrollen, wenn die horizontale Bewegung dominiert
+            if (Math.abs(touchDistX) > 10) {
+                e.preventDefault(); 
+            }
+            
+            // Berechne die aktuelle Verschiebung
+            const currentTranslate = -currentModuleIndex * 50;
+            const dragPercentage = (touchDistX / swipeContainer.offsetWidth) * 100;
+
+            // Setze die Verschiebung, limitiert auf die Grenzen
+            let newTranslate = currentTranslate + dragPercentage;
+            
+            // Begrenze die Verschiebung, damit sie nicht außerhalb des 200%-Wrappers liegt (0% bis -50%)
+            if (newTranslate > 0) newTranslate = 0;
+            if (newTranslate < -50) newTranslate = -50;
+            
+            moduleWrapper.style.transform = `translateX(${newTranslate}%)`;
+        }
+
+        function handleTouchEnd() {
+            if (!isSwiping) return;
+            isSwiping = false;
+
+            // Überprüfe, ob die Wischgeste den Schwellenwert überschritten hat
+            if (touchDistX < -SWIPE_THRESHOLD && currentModuleIndex < MODULE_COUNT - 1) {
+                // Nach links wischen (zum nächsten Modul)
+                switchToModule(currentModuleIndex + 1);
+            } else if (touchDistX > SWIPE_THRESHOLD && currentModuleIndex > 0) {
+                // Nach rechts wischen (zum vorherigen Modul)
+                switchToModule(currentModuleIndex - 1);
+            } else {
+                // Kein ausreichender Swipe, kehre zur aktuellen Position zurück
+                switchToModule(currentModuleIndex); 
+            }
+            
+            touchStartX = 0;
+            touchDistX = 0;
+        }
+
+        // Event-Listener für Wischgesten hinzufügen
+        swipeContainer.addEventListener('touchstart', handleTouchStart);
+        swipeContainer.addEventListener('touchmove', handleTouchMove, { passive: false }); // passive: false für e.preventDefault()
+        swipeContainer.addEventListener('touchend', handleTouchEnd);
+
+
+        // Standard-Modul beim Laden anzeigen
+        switchToModule(0); 
+        document.getElementById('module-wrapper').classList.add('flex'); // Füge flex hinzu, nachdem das Layout erstellt ist
 
 
         // --- 4. SYSTEMZEIT-LOGIK ---
