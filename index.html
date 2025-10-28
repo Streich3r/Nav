@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"> 
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristische Navigationskonsole</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Sci-Fi Farbschema und Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@400;600;700&display=swap');
+        
+        /* Hintergrund mit subtiler Textur */
+        body {
+            background-color: #0d0a1b; 
+            background-image: radial-gradient(#1a142e 1px, transparent 1px), 
+                              radial-gradient(#1a142e 1px, #0d0a1b 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            
+            font-family: 'Inter', sans-serif;
+            color: #d1d5db; 
+            transition: all 0.3s ease;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        /* NEON GLOW EFFEKTE */
+        .neon-glow {
+            text-shadow: 0 0 5px #06b6d4, 0 0 10px #06b6d4, 0 0 20px #06b6d4;
+        }
+        .neon-red {
+            text-shadow: 0 0 5px #f87171, 0 0 10px #f87171, 0 0 20px #f87171;
+            color: #fca5a5;
+        }
+        /* Digitales Panel */
+        .digital-display {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.7);
+            border: 2px solid #06b6d4;
+            background: rgba(0, 0, 0, 0.5); 
+            animation: pulse 1.5s infinite alternate;
+        }
+        /* Button Styles */
+        .scifi-btn {
+            @apply px-4 py-2 rounded-lg font-orbitron text-sm shadow-xl transition-all duration-150;
+            border: 1px solid;
+        }
+        .btn-cyan {
+            @apply bg-cyan-800 text-cyan-200 border-cyan-500 hover:bg-cyan-700;
+            box-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+        }
+        .btn-red {
+            @apply bg-red-800 text-red-200 border-red-500 hover:bg-red-700;
+            box-shadow: 0 0 8px rgba(248, 113, 113, 0.5);
+        }
+        .btn-indigo {
+            @apply bg-indigo-800 text-indigo-200 border-indigo-500 hover:bg-indigo-700;
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+        }
+        
+        /* KOMPASSGEHÄUSE */
+        #compass-container {
+            aspect-ratio: 1 / 1; 
+            background: radial-gradient(circle, #1a142e 0%, #0d0a1b 100%);
+            border: 4px solid #3b82f6; 
+            box-shadow: 0 0 20px #3b82f6, inset 0 0 10px #1d4ed8; 
+            position: relative;
+            overflow: hidden; 
+        }
+        
+        /* Kompassnadel */
+        #compass-needle {
+            transform-origin: center center;
+            transition: transform 0.1s ease-linear; 
+            opacity: 0.6; 
+        }
+        
+        /* Nadelhälften */
+        .needle-north {
+            background: linear-gradient(to top, #ff0000, #ff4500); 
+            box-shadow: 0 0 8px #ff0000;
+        }
+        .needle-south {
+            background-color: #06b6d4; 
+            box-shadow: 0 0 5px #06b6d4;
+        }
+
+        /* Zentraler Punkt (Stromkern) */
+        #center-dot {
+            position: absolute;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            background-color: #3b82f6;
+            box-shadow: 0 0 10px #3b82f6, 0 0 20px #2563eb;
+            z-index: 20;
+        }
+
+        .rotated-label {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem; 
+            transition: color 0.3s ease;
+        }
+
+        /* Hilfsklassen (erzwungener Dark Mode) */
+        .scifi-body {
+            background-color: #0d0a1b !important;
+        }
+        
+        /* Animation für die digitale Anzeige */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.5); }
+            100% { box-shadow: 0 0 30px rgba(6, 182, 212, 1); }
+        }
+
+        /* Digitaler Flacker-Effekt */
+        @keyframes digital-flicker {
+            0%, 100% { opacity: 1; }
+            5% { opacity: 0.9; }
+            10% { opacity: 1; }
+            15% { opacity: 0.95; }
+            20% { opacity: 1; }
+        }
+        .digital-flicker {
+            animation: digital-flicker 3s infinite;
+        }
+
+        /* Tabs */
+        .tab-btn {
+            @apply flex-1 p-3 text-center border-b-2 border-transparent hover:border-indigo-400 font-orbitron text-sm transition-colors duration-200;
+        }
+        .tab-btn.active {
+            @apply border-indigo-400 text-indigo-400 shadow-inner shadow-indigo-700/50;
+        }
+    </style>
+</head>
+<body class="scifi-body min-h-screen flex flex-col items-center justify-start p-6 pt-12 text-gray-300">
+
+    <div class="max-w-md w-full bg-[#151221] p-8 rounded-2xl border-2 border-indigo-700 shadow-[0_0_40px_rgba(59,130,246,0.3)] relative">
+        
+        <h1 class="text-3xl font-orbitron font-bold mb-4 text-center text-cyan-400 neon-glow">
+            <span class="text-indigo-400">GEO</span> <span class="text-cyan-400">NAV</span> <span class="text-indigo-400">EINHEIT</span>
+        </h1>
+
+        <!-- System-Zeitanzeige -->
+        <div id="time-display" class="font-orbitron text-2xl text-center text-indigo-400 mb-6 p-2 w-full digital-display border-indigo-500" style="text-shadow: 0 0 5px #818cf8;">
+            --:--:--
+        </div>
+
+        <!-- System Status/Auth-Anzeige -->
+        <p id="system-status" class="text-xs text-center text-gray-500 mb-4">
+            Auth-Status: <span id="auth-status" class="text-yellow-500">Verbinde...</span> | Benutzer-ID: <span id="user-id" class="text-gray-400 text-xs">Warte auf ID...</span>
+        </p>
+
+        <!-- Der Toggle-Button ist ästhetisch und bleibt im Sci-Fi-Thema -->
+        <button id="theme-toggle" class="absolute top-4 right-4 p-2 rounded-full bg-[#1f1d2b] border border-indigo-500 text-indigo-400 shadow-lg hover:scale-110 transition-transform duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-500">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+        </button>
+
+        <!-- Kompass Modul (Immer sichtbar) -->
+        <div id="compass-module" class="module-content">
+            <!-- Navigations-Anzeige (Bino-Stil) -->
+            <div id="navigation-readout" class="mb-8 p-4 w-full text-center digital-display digital-flicker flex flex-col items-center hidden">
+                <!-- Haupt Himmelsrichtungsanzeige -->
+                <div id="cardinal-heading-display" class="font-orbitron text-4xl font-extrabold text-cyan-400">
+                    ---
+                </div>
+                <!-- Exakte Gradanzeige (groß, Primärfokus) -->
+                <div id="raw-degree-display" class="font-orbitron text-7xl font-extrabold text-cyan-400 neon-glow mt-1">
+                    000.0°
+                </div>
+            </div>
+
+            <div id="compass-container" class="relative w-64 h-64 mx-auto rounded-full flex items-center justify-center">
+                
+                <!-- Himmelsrichtungs-Beschriftungen -->
+                <div class="rotated-label neon-red font-black" style="top: 10%; left: 50%;">N</div>
+                <div class="rotated-label text-cyan-400 font-semibold" style="top: 90%; left: 50%;">S</div>
+                <div class="rotated-label text-cyan-400 font-semibold" style="top: 50%; left: 90%;">E</div>
+                <div class="rotated-label text-cyan-400 font-semibold" style="top: 50%; left: 10%;">W</div>
+
+                <!-- Kompassnadel -->
+                <div id="compass-needle" class="absolute w-4 h-full -translate-y-px" style="transform: rotate(0deg); border-radius: 9999px;">
+                    <div class="w-full h-1/2 needle-north rounded-t-full"></div>
+                    <div class="w-full h-1/2 needle-south rounded-b-full"></div>
+                </div>
+                
+                <!-- Zentraler Punkt -->
+                <div id="center-dot" class="absolute"></div>
+            </div>
+            
+            <!-- Fehler/Statusmeldung -->
+            <p id="error-message" class="mt-6 text-sm text-yellow-400 text-center font-semibold p-3 rounded-lg bg-[#1f1d2b] border border-yellow-600 neon-glow" style="text-shadow: 0 0 5px #fde047;">
+                Initialisiere Sensor-Array... Tippe Modul zur Aktivierung.
+            </p>
+        </div>
+
+
+        <!-- --- ZUSATZMODULE (TABBED) --- -->
+        <div class="mt-8">
+            <!-- Tab-Navigation -->
+            <div class="flex border-b border-indigo-700 mb-4">
+                <button id="tab-timer" class="tab-btn active" onclick="showModule('timer')">STOPPUHR</button>
+                <button id="tab-steps" class="tab-btn" onclick="showModule('steps')">SCHRITTZÄHLER</button>
+            </div>
+
+            <!-- Stoppuhr Modul -->
+            <div id="timer-module" class="module-content">
+                <h2 class="font-orbitron text-lg text-cyan-400 mb-4">STOPPUHR</h2>
+                
+                <div id="timer-display" class="font-orbitron text-5xl text-center text-cyan-400 mb-6 p-4 digital-display digital-flicker">
+                    00:00:00.00
+                </div>
+
+                <!-- Steuerung -->
+                <div class="flex justify-around space-x-2 mb-6">
+                    <button id="timer-start-pause" class="scifi-btn btn-cyan">START</button>
+                    <button id="timer-reset" class="scifi-btn btn-red">ZURÜCKSETZEN</button>
+                    <button id="timer-save" class="scifi-btn btn-indigo" disabled>ZEIT SPEICHERN</button>
+                </div>
+                
+                <!-- Gespeicherte Zeiten Liste -->
+                <h3 class="font-orbitron text-sm text-indigo-400 border-b border-indigo-600 pb-1 mb-2">PROTOKOLLIERTE EREIGNISSE</h3>
+                <div id="timer-log" class="h-32 overflow-y-auto p-2 bg-[#0d0a1b] border border-gray-700 text-sm font-mono text-gray-300">
+                    <p class="text-center text-gray-500">Warte auf Daten...</p>
+                </div>
+            </div>
+
+            <!-- Schrittzähler Modul -->
+            <div id="steps-module" class="module-content hidden">
+                <h2 class="font-orbitron text-lg text-cyan-400 mb-4">SCHRITTZÄHLER</h2>
+                
+                <div id="steps-display" class="font-orbitron text-5xl text-center text-cyan-400 mb-6 p-4 digital-display digital-flicker">
+                    0
+                </div>
+
+                <!-- Steuerung -->
+                <div class="flex justify-around space-x-2 mb-6">
+                    <button id="steps-start-pause" class="scifi-btn btn-cyan">AKTIVIEREN</button>
+                    <button id="steps-reset" class="scifi-btn btn-red">ZURÜCKSETZEN</button>
+                    <button id="steps-save" class="scifi-btn btn-indigo" disabled>ZÄHLER PROTOKOLLIEREN</button>
+                </div>
+
+                <!-- Status der Schrittmessung -->
+                <p id="steps-status" class="text-xs text-center text-yellow-500 mb-4">
+                    Sensor-Status: Inaktiv. Benötigt Gerätebewegungsberechtigung.
+                </p>
+
+                <!-- Gespeicherte Schritte Liste -->
+                <h3 class="font-orbitron text-sm text-indigo-400 border-b border-indigo-600 pb-1 mb-2">AKTIVITÄTSPROTOKOLLE</h3>
+                <div id="steps-log" class="h-32 overflow-y-auto p-2 bg-[#0d0a1b] border border-gray-700 text-sm font-mono text-gray-300">
+                    <p class="text-center text-gray-500">Warte auf Daten...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        // Importiere Firebase-Module
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, onSnapshot, collection, query, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Globals (MÜSSEN verwendet werden)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth, userId = null;
+        let isAuthReady = false;
+
+        // UI-Referenzen
+        const authStatusEl = document.getElementById('auth-status');
+        const userIdEl = document.getElementById('user-id');
+        const errorMsg = document.getElementById('error-message');
+        const navigationReadout = document.getElementById('navigation-readout');
+
+        // --- 1. FIREBASE INITIALISIERUNG ---
+
+        async function initFirebase() {
+            if (!firebaseConfig) {
+                authStatusEl.textContent = 'Fehler: Firebase Konfiguration fehlt';
+                console.error("Firebase Konfiguration nicht gefunden.");
+                return;
+            }
+
+            try {
+                setLogLevel('debug'); // Detailliertes Firestore-Logging aktivieren
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                authStatusEl.textContent = 'Authentifiziere...';
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        authStatusEl.textContent = 'Online';
+                    } else {
+                        // Melde dich mit Custom Token oder anonym an
+                        try {
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                            userId = auth.currentUser.uid;
+                            authStatusEl.textContent = 'Online';
+                        } catch (e) {
+                            console.error("Authentifizierung fehlgeschlagen:", e);
+                            userId = crypto.randomUUID(); // Fallback ID
+                            authStatusEl.textContent = 'Anon (Offline)';
+                        }
+                    }
+                    userIdEl.textContent = userId;
+                    isAuthReady = true;
+                    console.log("Firebase initialisiert. Benutzer-ID:", userId);
+                    
+                    // Starte Echtzeit-Listener, sobald authentifiziert
+                    if (userId) {
+                        setupFirestoreListeners();
+                    }
+                });
+
+            } catch (e) {
+                console.error("Firebase Initialisierung fehlgeschlagen:", e);
+                authStatusEl.textContent = 'Fehler: Init fehlgeschlagen';
+                userId = crypto.randomUUID();
+                userIdEl.textContent = userId;
+                isAuthReady = true;
+            }
+        }
+        
+        // --- 2. FIRESTORE HILFSFUNKTIONEN ---
+
+        function getCollectionPath(collectionName) {
+            return `artifacts/${appId}/users/${userId}/${collectionName}`;
+        }
+
+        function setupFirestoreListeners() {
+            // Stoppuhr-Log-Listener
+            const timerQ = query(collection(db, getCollectionPath('timer_logs')));
+            onSnapshot(timerQ, (snapshot) => {
+                const logs = [];
+                snapshot.forEach((doc) => {
+                    logs.push({ id: doc.id, ...doc.data() });
+                });
+                renderTimerLogs(logs.sort((a, b) => b.timestamp - a.timestamp)); // Sortiere absteigend nach Zeit
+            }, (error) => {
+                console.error("Stoppuhr-Protokoll-Listener-Fehler:", error);
+                document.getElementById('timer-log').innerHTML = `<p class="text-red-500 text-center">Protokoll-Sync-Fehler.</p>`;
+            });
+
+            // Schritt-Log-Listener
+            const stepsQ = query(collection(db, getCollectionPath('step_logs')));
+            onSnapshot(stepsQ, (snapshot) => {
+                const logs = [];
+                snapshot.forEach((doc) => {
+                    logs.push({ id: doc.id, ...doc.data() });
+                });
+                renderStepLogs(logs.sort((a, b) => b.timestamp - a.timestamp)); // Sortiere absteigend nach Zeit
+            }, (error) => {
+                console.error("Schritt-Protokoll-Listener-Fehler:", error);
+                document.getElementById('steps-log').innerHTML = `<p class="text-red-500 text-center">Protokoll-Sync-Fehler.</p>`;
+            });
+        }
+        
+        async function saveTimerResult(timeString) {
+            if (!isAuthReady || !db) {
+                console.warn("Datenbank nicht bereit zum Speichern des Stoppuhr-Protokolls.");
+                return;
+            }
+            try {
+                await addDoc(collection(db, getCollectionPath('timer_logs')), {
+                    time: timeString,
+                    timestamp: Date.now()
+                });
+                console.log("Stoppuhr-Protokoll erfolgreich gespeichert.");
+            } catch (e) {
+                console.error("Fehler beim Speichern des Stoppuhr-Protokolls:", e);
+                errorMsg.textContent = "Datenspeicherung fehlgeschlagen. Überprüfe Protokolle.";
+            }
+        }
+        
+        async function saveStepCount(steps) {
+            if (!isAuthReady || !db) {
+                console.warn("Datenbank nicht bereit zum Speichern des Schritt-Protokolls.");
+                return;
+            }
+            try {
+                await addDoc(collection(db, getCollectionPath('step_logs')), {
+                    steps: steps,
+                    timestamp: Date.now()
+                });
+                console.log("Schrittzahl erfolgreich gespeichert.");
+            } catch (e) {
+                console.error("Fehler beim Speichern der Schrittzahl:", e);
+                errorMsg.textContent = "Datenspeicherung fehlgeschlagen. Überprüfe Protokolle.";
+            }
+        }
+        
+        function renderTimerLogs(logs) {
+            const container = document.getElementById('timer-log');
+            if (logs.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500">Keine Ereignisse protokolliert.</p>`;
+                return;
+            }
+            container.innerHTML = logs.map(log => {
+                const date = new Date(log.timestamp).toLocaleTimeString();
+                return `<p class="py-1 border-b border-gray-800 flex justify-between">
+                            <span class="text-indigo-300">[${date}]</span>
+                            <span class="text-cyan-300 font-bold">${log.time}</span>
+                        </p>`;
+            }).join('');
+        }
+        
+        function renderStepLogs(logs) {
+            const container = document.getElementById('steps-log');
+            if (logs.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500">Keine Aktivitäten protokolliert.</p>`;
+                return;
+            }
+            container.innerHTML = logs.map(log => {
+                const date = new Date(log.timestamp).toLocaleDateString();
+                const time = new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                return `<p class="py-1 border-b border-gray-800 flex justify-between">
+                            <span class="text-indigo-300">[${date} ${time}]</span>
+                            <span class="text-cyan-300 font-bold">${log.steps.toLocaleString()} Schritte</span>
+                        </p>`;
+            }).join('');
+        }
+
+        // --- 3. TAB-CONTROLLER ---
+        window.showModule = function(moduleName) {
+            // Alle Modulinhalte ausblenden
+            document.querySelectorAll('.module-content').forEach(el => el.classList.add('hidden'));
+            // Alle Tab-Buttons deaktivieren
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            // Gewähltes Modul anzeigen
+            document.getElementById(`${moduleName}-module`).classList.remove('hidden');
+            // Gewählten Tab-Button aktivieren
+            document.getElementById(`tab-${moduleName}`).classList.add('active');
+
+            // Das Kompass-Modul ist immer sichtbar, da es oben sitzt
+            document.getElementById('compass-module').classList.remove('hidden');
+        }
+        
+        // Stoppuhr als Standard-Zusatzmodul anzeigen
+        showModule('timer'); 
+        document.getElementById('compass-module').classList.remove('hidden');
+
+
+        // --- 4. SYSTEMZEIT-LOGIK ---
+        const timeDisplay = document.getElementById('time-display');
+
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            timeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Der Toggle-Button ist ästhetisch und bleibt im Sci-Fi-Thema
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            console.log("Toggle-Button gedrückt - UI bleibt im Sci-Fi-Modus.");
+        });
+
+
+        // --- 5. KOMPASS-LOGIK ---
+
+        const needle = document.getElementById('compass-needle');
+        const cardinalHeadingDisplay = document.getElementById('cardinal-heading-display');
+        const rawDegreeDisplay = document.getElementById('raw-degree-display');
+        
+        function getCardinalDirection(angle) {
+            const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW']; // Deutsche Himmelsrichtungen
+            const index = Math.round(angle / 45) % 8;
+            return directions[index];
+        }
+
+        function handleOrientation(event) {
+            let heading = event.alpha;
+
+            if (heading === null || isNaN(heading)) {
+                 errorMsg.textContent = "Fehler: Kernsensorlesung nicht verfügbar. Überprüfe Systemintegrität.";
+                 errorMsg.classList.remove('hidden');
+                 navigationReadout.classList.add('hidden');
+                 return;
+            }
+            
+            if (event.webkitCompassHeading !== undefined) {
+                heading = event.webkitCompassHeading;
+            }
+            
+            heading = heading % 360;
+            if (heading < 0) {
+                heading += 360;
+            }
+
+            const rotation = 360 - heading;
+
+            needle.style.transform = `rotate(${rotation}deg)`;
+            const roundedHeading = Math.round(heading);
+            const cardinal = getCardinalDirection(roundedHeading);
+            
+            cardinalHeadingDisplay.textContent = cardinal;
+            rawDegreeDisplay.textContent = `${heading.toFixed(1)}°`; 
+
+            navigationReadout.classList.remove('hidden'); 
+            errorMsg.classList.add('hidden');
+        }
+
+        function initCompass() {
+            if ('DeviceOrientationEvent' in window) {
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    // iOS/Safari-Berechtigungspfad
+                    errorMsg.textContent = "Sensorzugriff erforderlich. Tippe Modul, um Hardware-Handshake zu starten.";
+                    navigationReadout.classList.add('hidden');
+                    errorMsg.classList.remove('hidden');
+                    
+                    document.body.addEventListener('click', function requestPermission() {
+                        DeviceOrientationEvent.requestPermission()
+                            .then(permissionState => {
+                                if (permissionState === 'granted') {
+                                    window.addEventListener('deviceorientation', handleOrientation);
+                                    errorMsg.classList.add('hidden');
+                                    navigationReadout.classList.remove('hidden');
+                                } else {
+                                    errorMsg.textContent = "Sensorberechtigungen verweigert. Überprüfe Systemprotokolle für Zugriffssteuerungsstatus.";
+                                }
+                            })
+                            .catch(e => {
+                                console.error("Berechtigungsanfrage fehlgeschlagen:", e);
+                                errorMsg.textContent = "Hardware-Handshake fehlgeschlagen. Systemdiagnose erforderlich.";
+                            });
+                        document.body.removeEventListener('click', requestPermission);
+                    });
+
+                } else {
+                    // Standard-Browser-Pfad
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    errorMsg.classList.add('hidden');
+                    navigationReadout.classList.remove('hidden');
+                }
+
+            } else {
+                cardinalHeadingDisplay.textContent = 'SYS';
+                rawDegreeDisplay.textContent = 'OFFLINE';
+                errorMsg.textContent = "Geräte-Orientierungsmodul nicht erkannt. Kompatibilitätsfehler.";
+                errorMsg.classList.remove('hidden');
+                navigationReadout.classList.remove('hidden');
+            }
+        }
+
+
+        // --- 6. TIMER (STOPPUHR) LOGIK ---
+        const timerDisplay = document.getElementById('timer-display');
+        const timerStartPauseBtn = document.getElementById('timer-start-pause');
+        const timerResetBtn = document.getElementById('timer-reset');
+        const timerSaveBtn = document.getElementById('timer-save');
+        
+        let timerInterval = null;
+        let startTime = 0;
+        let elapsedTime = 0;
+        let isRunning = false;
+
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const totalMinutes = Math.floor(totalSeconds / 60);
+            const totalHours = Math.floor(totalMinutes / 60);
+
+            const displayHours = String(totalHours).padStart(2, '0');
+            const displayMinutes = String(totalMinutes % 60).padStart(2, '0');
+            const displaySeconds = String(totalSeconds % 60).padStart(2, '0');
+            const displayMilliseconds = String(Math.floor((ms % 1000) / 10)).padStart(2, '0');
+
+            return `${displayHours}:${displayMinutes}:${displaySeconds}.${displayMilliseconds}`;
+        }
+
+        function updateTimerDisplay() {
+            const currentTime = Date.now();
+            elapsedTime = currentTime - startTime;
+            timerDisplay.textContent = formatTime(elapsedTime);
+        }
+
+        timerStartPauseBtn.addEventListener('click', () => {
+            if (isRunning) {
+                // Pause
+                clearInterval(timerInterval);
+                isRunning = false;
+                timerStartPauseBtn.textContent = 'FORTSETZEN';
+                timerStartPauseBtn.classList.remove('btn-red');
+                timerStartPauseBtn.classList.add('btn-cyan');
+                timerSaveBtn.disabled = false;
+            } else {
+                // Start / Fortsetzen
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(updateTimerDisplay, 10);
+                isRunning = true;
+                timerStartPauseBtn.textContent = 'PAUSE';
+                timerStartPauseBtn.classList.remove('btn-cyan');
+                timerStartPauseBtn.classList.add('btn-red');
+                timerSaveBtn.disabled = true;
+            }
+        });
+
+        timerResetBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            isRunning = false;
+            elapsedTime = 0;
+            timerDisplay.textContent = formatTime(0);
+            timerStartPauseBtn.textContent = 'START';
+            timerStartPauseBtn.classList.remove('btn-red');
+            timerStartPauseBtn.classList.add('btn-cyan');
+            timerSaveBtn.disabled = true;
+        });
+        
+        timerSaveBtn.addEventListener('click', () => {
+            const timeToSave = timerDisplay.textContent;
+            if (timeToSave !== formatTime(0) && !isRunning) {
+                saveTimerResult(timeToSave);
+                timerSaveBtn.disabled = true;
+            }
+        });
+
+
+        // --- 7. SCHRITTZÄHLER-LOGIK ---
+        const stepsDisplay = document.getElementById('steps-display');
+        const stepsStartPauseBtn = document.getElementById('steps-start-pause');
+        const stepsResetBtn = document.getElementById('steps-reset');
+        const stepsSaveBtn = document.getElementById('steps-save');
+        const stepsStatusEl = document.getElementById('steps-status');
+
+        let stepCount = 0;
+        let isTracking = false;
+        let isSensorAvailable = false;
+        
+        // Sensor-Simulations/Schwellenwert-Variablen
+        let lastAcceleration = { x: 0, y: 0, z: 0 };
+        const SHAKE_THRESHOLD = 15; // Angepasster Schwellenwert für allgemeine Bewegungserkennung
+
+        function handleMotion(event) {
+            if (!isTracking) return;
+
+            const acceleration = event.accelerationIncludingGravity;
+            if (!acceleration || acceleration.x === null) {
+                stepsStatusEl.textContent = "Sensor-Datenstrom unterbrochen.";
+                return;
+            }
+
+            const currentAcceleration = {
+                x: acceleration.x || 0, 
+                y: acceleration.y || 0, 
+                z: acceleration.z || 0
+            };
+
+            // Berechne die Größe der Veränderung
+            const deltaX = currentAcceleration.x - lastAcceleration.x;
+            const deltaY = currentAcceleration.y - lastAcceleration.y;
+            const deltaZ = currentAcceleration.z - lastAcceleration.z;
+            
+            const magnitudeDelta = Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+
+            if (magnitudeDelta > SHAKE_THRESHOLD) {
+                // Dies ist ein Proxy für ein Schritt-/Schüttelereignis
+                stepCount += 1;
+                stepsDisplay.textContent = stepCount.toLocaleString();
+            }
+
+            lastAcceleration = currentAcceleration;
+        }
+
+        function toggleStepTracking() {
+            if (isTracking) {
+                // Pause
+                window.removeEventListener('devicemotion', handleMotion);
+                isTracking = false;
+                stepsStartPauseBtn.textContent = 'FORTSETZEN';
+                stepsStartPauseBtn.classList.remove('btn-red');
+                stepsStartPauseBtn.classList.add('btn-cyan');
+                stepsSaveBtn.disabled = false;
+                stepsStatusEl.textContent = "Sensor-Status: Pausiert. Zählerstand: " + stepCount.toLocaleString();
+            } else {
+                // Start / Fortsetzen
+                if (isSensorAvailable) {
+                    window.addEventListener('devicemotion', handleMotion);
+                    isTracking = true;
+                    stepsStartPauseBtn.textContent = 'PAUSE';
+                    stepsStartPauseBtn.classList.remove('btn-cyan');
+                    stepsStartPauseBtn.classList.add('btn-red');
+                    stepsSaveBtn.disabled = true;
+                    stepsStatusEl.textContent = "Sensor-Status: Aktiv. Verfolge Bewegung...";
+                }
+            }
+        }
+        stepsStartPauseBtn.addEventListener('click', toggleStepTracking);
+
+        stepsResetBtn.addEventListener('click', () => {
+            stepCount = 0;
+            stepsDisplay.textContent = '0';
+            stepsSaveBtn.disabled = true;
+            if (!isTracking) {
+                stepsStatusEl.textContent = "Sensor-Status: Bereit zur Aktivierung.";
+            }
+        });
+
+        stepsSaveBtn.addEventListener('click', () => {
+            if (stepCount > 0) {
+                saveStepCount(stepCount);
+                stepsSaveBtn.disabled = true;
+            }
+        });
+
+        function checkDeviceMotionPermission() {
+            if ('DeviceMotionEvent' in window) {
+                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                    // iOS/Safari-Berechtigungspfad
+                    stepsStatusEl.textContent = "Sensorprüfung: Benötigt Bewegungs- und Orientierungszugriff. Tippe aktivieren.";
+                    stepsStartPauseBtn.removeEventListener('click', toggleStepTracking);
+
+                    stepsStartPauseBtn.addEventListener('click', function requestMotionPermission() {
+                        DeviceMotionEvent.requestPermission()
+                            .then(permissionState => {
+                                if (permissionState === 'granted') {
+                                    isSensorAvailable = true;
+                                    stepsStartPauseBtn.addEventListener('click', toggleStepTracking);
+                                    stepsStatusEl.textContent = "Sensorprüfung: Bereit. Tippe PAUSE, um die Verfolgung zu starten.";
+                                    // Starte die Verfolgung nicht sofort, sondern warte auf den nächsten Klick.
+                                    stepsStartPauseBtn.removeEventListener('click', requestMotionPermission);
+                                } else {
+                                    stepsStatusEl.textContent = "Sensorprüfung: Bewegungsberechtigungen verweigert. Manueller Eingabemodus empfohlen.";
+                                    isSensorAvailable = false;
+                                }
+                            })
+                            .catch(e => {
+                                console.error("Bewegungsberechtigung fehlgeschlagen:", e);
+                                stepsStatusEl.textContent = "Sensorprüfung: Hardware-/Berechtigungsfehler.";
+                                isSensorAvailable = false;
+                            });
+                    });
+                } else {
+                    // Standard-Browser-Pfad
+                    isSensorAvailable = true;
+                    stepsStatusEl.textContent = "Sensorprüfung: Gerätebewegung verfügbar. Tippe AKTIVIEREN, um zu starten.";
+                }
+            } else {
+                stepsStatusEl.textContent = "Sensorprüfung: Gerätebewegung wird vom System nicht unterstützt.";
+                isSensorAvailable = false;
+            }
+        }
+
+
+        // --- 8. INITIALISIERUNG ---
+
+        window.addEventListener('load', () => {
+            initFirebase();
+            initCompass();
+            checkDeviceMotionPermission();
+        });
+    </script>
+
+</body>
+</html>
