@@ -44,9 +44,11 @@
             animation: pulse 1.5s infinite alternate;
         }
         /* Button Styles */
+        /* Reduzierte Schriftgröße auf text-xs für bessere Anpassung auf kleinen Bildschirmen */
         .scifi-btn {
-            @apply px-4 py-2 rounded-lg font-orbitron text-sm shadow-xl transition-all duration-150;
+            @apply px-2 py-2 rounded-lg font-orbitron text-xs shadow-xl transition-all duration-150 flex-1; 
             border: 1px solid;
+            white-space: nowrap; /* Verhindert Zeilenumbruch im Text, wenn möglich */
         }
         .btn-cyan {
             @apply bg-cyan-800 text-cyan-200 border-cyan-500 hover:bg-cyan-700;
@@ -149,6 +151,7 @@
 </head>
 <body class="scifi-body min-h-screen flex flex-col items-center justify-start p-6 pt-12 text-gray-300">
 
+    <!-- Haupt-Container mit max-width, um Mobilgeräte zu berücksichtigen -->
     <div class="max-w-md w-full bg-[#151221] p-8 rounded-2xl border-2 border-indigo-700 shadow-[0_0_40px_rgba(59,130,246,0.3)] relative">
         
         <h1 class="text-3xl font-orbitron font-bold mb-4 text-center text-cyan-400 neon-glow">
@@ -222,17 +225,17 @@
                 <!-- Inner SCROLLING/TRANSITION element - enthält beide Module -->
                 <div id="module-wrapper" class="transition-transform duration-300 ease-out"> 
                     
-                    <!-- Stoppuhr Modul (50% der 200%-Breite = 100% der Container-Breite) -->
-                    <div id="timer-module" class="module-content w-1/2 flex-shrink-0">
+                    <!-- Stoppuhr Modul - WICHTIG: px-4 für horizontalen Abstand zum Rand des Hauptcontainers -->
+                    <div id="timer-module" class="module-content w-1/2 flex-shrink-0 px-4">
                         <h2 class="font-orbitron text-lg text-cyan-400 mb-4">STOPPUHR</h2>
                         
-                        <!-- P-5 für mehr Abstand zum Rand -->
-                        <div id="timer-display" class="font-orbitron text-5xl text-center text-cyan-400 mb-6 p-5 digital-display digital-flicker">
+                        <!-- P-5 für mehr vertikalen Abstand zum Rand, text-4xl/sm:text-5xl für dynamische Größe -->
+                        <div id="timer-display" class="font-orbitron text-4xl sm:text-5xl text-center text-cyan-400 mb-6 p-5 digital-display digital-flicker">
                             00:00:00.00
                         </div>
 
-                        <!-- Steuerung -->
-                        <div class="flex justify-around space-x-2 mb-6">
+                        <!-- Steuerung: flex-1 auf Buttons für dynamische Breite, space-x-1 für minimale Lücken -->
+                        <div class="flex justify-between space-x-1 mb-6">
                             <button id="timer-start-pause" class="scifi-btn btn-cyan">START</button>
                             <button id="timer-reset" class="scifi-btn btn-red">ZURÜCKSETZEN</button>
                             <button id="timer-save" class="scifi-btn btn-indigo" disabled>ZEIT SPEICHERN</button>
@@ -245,17 +248,17 @@
                         </div>
                     </div>
 
-                    <!-- Schrittzähler Modul (50% der 200%-Breite = 100% der Container-Breite) -->
-                    <div id="steps-module" class="module-content w-1/2 flex-shrink-0">
+                    <!-- Schrittzähler Modul - WICHTIG: px-4 für horizontalen Abstand zum Rand des Hauptcontainers -->
+                    <div id="steps-module" class="module-content w-1/2 flex-shrink-0 px-4">
                         <h2 class="font-orbitron text-lg text-cyan-400 mb-4">SCHRITTZÄHLER</h2>
                         
-                        <!-- P-5 für mehr Abstand zum Rand -->
-                        <div id="steps-display" class="font-orbitron text-5xl text-center text-cyan-400 mb-6 p-5 digital-display digital-flicker">
+                        <!-- P-5 für mehr vertikalen Abstand zum Rand, text-4xl/sm:text-5xl für dynamische Größe -->
+                        <div id="steps-display" class="font-orbitron text-4xl sm:text-5xl text-center text-cyan-400 mb-6 p-5 digital-display digital-flicker">
                             0
                         </div>
 
-                        <!-- Steuerung -->
-                        <div class="flex justify-around space-x-2 mb-6">
+                        <!-- Steuerung: flex-1 auf Buttons für dynamische Breite, space-x-1 für minimale Lücken -->
+                        <div class="flex justify-between space-x-1 mb-6">
                             <button id="steps-start-pause" class="scifi-btn btn-cyan">AKTIVIEREN</button>
                             <button id="steps-reset" class="scifi-btn btn-red">ZURÜCKSETZEN</button>
                             <button id="steps-save" class="scifi-btn btn-indigo" disabled>ZÄHLER PROTOKOLLIEREN</button>
